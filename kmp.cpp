@@ -9,6 +9,20 @@ void print_table(std::vector<int>& table) {
     std::cout << std::endl;
 }
 
+bool arg_error(std::string const& pattern, std::string const& text, int argc) {
+    if (pattern.length() > text.length()) {
+    	std::cout 
+    		<< "Pattern is shorter than text - please enter the pattern as first argument and the text as second." 
+    		<< std::endl;
+        return 0;
+    }
+    if (argc != 3) {
+        std::cout << "ERROR: Wrong number of arguments." << std::endl;
+        return 0;
+    }
+	return false;
+}
+
 void fill_table(std::string const& word, std::vector<int>& table) {
     int pos{2}, index{0};
 
@@ -27,8 +41,6 @@ void fill_table(std::string const& word, std::vector<int>& table) {
             ++pos;
         }
     }
-
-    print_table(table); //for debugging purposes
 }
 
 bool match_string(std::string const& pat, std::string const& text, int& pos) {
@@ -39,7 +51,7 @@ bool match_string(std::string const& pat, std::string const& text, int& pos) {
     while(i+j < text.length())
     {
         if (pat[j] == text[i+j]) { //corresponding characters of text and pattern match
-            if (j == pat.length()-1) { //end of pattern reached
+            if (j == pat.length()-1) { //found match
                 pos = i;
                 return true;
             }
@@ -62,19 +74,22 @@ int main(int argc, char* argv[]) {
     std::string pattern{argv[1]};
     std::string text{argv[2]};
 
-    if (pattern.length() > text.length()) {
-        return 0;
-    }
-    if (argc != 2) {
-        std::cout << "ERROR: Wrong number of arguments." << std::endl;
+    if (arg_error(pattern, text, argc)) return 0;
+
+    int pos{0}, match_count{0};
+
+    for (int k=0; k < text.length()-pattern.length(); ++k) {
+    	if (match_string(pattern, text.substr(k), pos)) {
+			std::cout << "Found pattern in text at position: " << k+pos << std::endl;    	
+    		k += pos;
+    		++match_count;
+    	}
     }
 
-    int pos{0};
-
-    if (match_string(pattern, text, pos)) {
-        std::cout << "Found pattern in text at position: " << pos << std::endl;
+    if (0 == match_count) {
+    	std::cout << "Did not find pattern in the text." << std::endl; 
     } else {
-        std::cout << "Did not find pattern in text." << std::endl;
+    	std::cout << "Found " << match_count << " matches in the text." << std::endl;
     }
 
     return 0;
